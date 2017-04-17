@@ -16,13 +16,32 @@ namespace SliderDemo
         private Dictionary<GridPosition, GridItem> _gridItems;
 
 
+        public Boolean isGameWon()
+        {
+            GridPosition pos;
+            for (var row = 0; row < 4; row++)
+            {
+                for (var col = 0; col < 4; col++)
+                {
+                    pos = new GridPosition(row, col);
+                    GridItem item = _gridItems[pos];
+                    if (item.isPositionCorrect() == false)
+                    {
+                        return false;
+                    }
+                         
+                }
+            }
+            return true;
+        }
+
         //Constructor
         public SliderDemoPage()
         {
             _gridItems = new Dictionary<GridPosition, GridItem>();
             _absoluteLayout = new AbsoluteLayout
             {
-                //BackgroundColor = Color.Blue,
+                BackgroundColor = Color.Blue,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
@@ -85,58 +104,19 @@ namespace SliderDemo
         {
             GridItem item = (GridItem)sender;
 
-            if (item.isEmptySpot() == false)
+            if (item.isEmptySpot() == true)
             {
                 return;
             }
-            //Random rand = new Random();
-            //int move = rand.Next(0, 4);
-
-            //if (move == 0 && item.CurrentPosition.Row == 0)
-            //{
-            //    move = 2;
-            //}
-            //else if (move == 1 && item.CurrentPosition.Column == SIZE - 1)
-            //{
-            //    move = 3;
-            //}
-            //else if (move == 2 && item.CurrentPosition.Row == SIZE - 1)
-            //{
-            //    move = 0;
-            //}
-            //else if (move == 3 && item.CurrentPosition.Column == 0)
-            //{
-            //    move = 1;
-            //}
-
-            //int row = 0;
-            //int col = 0;
-
-            //if (move == 0)
-            //{
-            //    row = item.CurrentPosition.Row - 1;
-            //    col = item.CurrentPosition.Column;
-            //}
-            //else if (move == 1)
-            //{
-            //    row = item.CurrentPosition.Row + 1;
-            //    col = item.CurrentPosition.Column;
-            //}
-            //else
-            //{
-            //    row = item.CurrentPosition.Row;
-            //    col = item.CurrentPosition.Column - 1;
-            //}
             var counter = 0;
-            GridPosition pos = null;
             while (counter < 4)
             {
-
+                GridPosition pos = null;
                 if (counter == 0 && item.CurrentPosition.Row != 0)
                 {
                     pos = new GridPosition(item.CurrentPosition.Row - 1, item.CurrentPosition.Column);
                 }
-                else if (counter == 1 && item.CurrentPosition.Row != SIZE - 1)
+                else if (counter == 1 && item.CurrentPosition.Column != SIZE - 1)
                 {
                     pos = new GridPosition(item.CurrentPosition.Row, item.CurrentPosition.Column + 1);
                 }
@@ -144,23 +124,29 @@ namespace SliderDemo
                 {
                     pos = new GridPosition(item.CurrentPosition.Row + 1, item.CurrentPosition.Column);
                 }
-                else if (counter == 3 && item.CurrentPosition.Row != 0)
+                else if (counter == 3 && item.CurrentPosition.Column != 0)
                 {
                     pos = new GridPosition(item.CurrentPosition.Row, item.CurrentPosition.Column - 1);
                 }
 
-
-
-
-                GridItem swapWith = _gridItems[pos];
-                if (swapWith.isEmptySpot())
+                if (pos != null)
                 {
-                    Swap(item, swapWith);
-                    break;
+                    GridItem swapWith = _gridItems[pos];
+                    if (swapWith.isEmptySpot())
+                    {
+                        Swap(item, swapWith);
+                        if (isGameWon() == true)
+                        {
+                            swapWith.showFinalImage(); 
+                        }
+                        break;
+                    }
                 }
 
+                counter = counter+1;
             }
                 OnContentViewSizeChanged(this.Content, null);
+            
        }
         
         void Swap(GridItem item1, GridItem item2)
@@ -217,8 +203,8 @@ namespace SliderDemo
                     _isEmptySpot = false;
                     Source = ImageSource.FromResource("SliderDemo.images." + text + ".jpeg");
                 }
-                HorizontalOptions = LayoutOptions.Center;
-                VerticalOptions = LayoutOptions.Center;
+                //HorizontalOptions = LayoutOptions.Center;
+                //VerticalOptions = LayoutOptions.Center;
                 Aspect = Aspect.Fill;
             }
 
@@ -226,6 +212,18 @@ namespace SliderDemo
             {
                 return _isEmptySpot;
             }
+            public void showFinalImage()
+            {
+                if (isEmptySpot())
+                {
+                    Source = ImageSource.FromResource("SliderDemo.images.16.jpeg");
+                }
+            }
+            public Boolean isPositionCorrect()
+            {
+                return _finalPosition.Equals(CurrentPosition);
+            }
+
         }
 
         internal class GridPosition
